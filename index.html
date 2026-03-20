@@ -2,1043 +2,514 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Maps To Cash — Lead Finder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maps To Cash — Local Lead Finder</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f0f2f5;
-  color: #1a1a1a;
-  font-size: 15px;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; min-height: 100vh; }
+  
+  header { background: #1a1a2e; padding: 16px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a4a; }
+  header h1 { font-size: 20px; font-weight: 700; color: #7c9cff; }
+  header span { font-size: 12px; color: #666; margin-left: auto; }
 
-/* ─── HEADER ─── */
-.header {
-  background: #1e3a5f;
-  color: white;
-  padding: 14px 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
-.header h1 span { color: #4fc3f7; }
-.header-sub { font-size: 13px; color: #90caf9; margin-left: auto; }
+  .setup { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 8px; padding: 20px; margin: 20px; }
+  .setup h2 { font-size: 14px; color: #7c9cff; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .setup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
+  
+  label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+  input, select { width: 100%; background: #0f0f1a; border: 1px solid #2a2a4a; color: #e0e0e0; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+  input:focus, select:focus { outline: none; border-color: #7c9cff; }
+  
+  button { background: #7c9cff; color: #0f0f0f; border: none; padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  button:hover { background: #9bb0ff; }
+  button:disabled { background: #333; color: #666; cursor: not-allowed; }
+  button.secondary { background: #2a2a4a; color: #7c9cff; }
+  button.secondary:hover { background: #3a3a6a; }
+  button.call-btn { background: #22c55e; color: white; padding: 6px 14px; font-size: 12px; }
+  button.call-btn:hover { background: #16a34a; }
 
-/* ─── LAYOUT ─── */
-.layout { display: flex; height: calc(100vh - 52px); }
+  .stats { display: flex; gap: 16px; padding: 0 20px 12px; flex-wrap: wrap; }
+  .stat { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 6px; padding: 10px 16px; min-width: 120px; }
+  .stat-val { font-size: 24px; font-weight: 700; color: #7c9cff; }
+  .stat-label { font-size: 11px; color: #666; text-transform: uppercase; }
 
-/* ─── SIDEBAR ─── */
-.sidebar {
-  width: 300px;
-  min-width: 300px;
-  background: white;
-  border-right: 2px solid #dde3ec;
-  overflow-y: auto;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
+  .progress { margin: 0 20px 12px; background: #1a1a2e; border-radius: 6px; overflow: hidden; height: 4px; display: none; }
+  .progress-bar { height: 100%; background: #7c9cff; transition: width 0.3s; width: 0%; }
+  .status-msg { text-align: center; font-size: 12px; color: #666; padding: 4px 0; display: none; }
 
-.section-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: #5a6a80;
-  margin-bottom: 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #e8ecf2;
-}
+  .controls { display: flex; gap: 8px; padding: 0 20px 12px; align-items: center; flex-wrap: wrap; }
+  .controls input[type="text"] { flex: 1; min-width: 200px; }
+  .sort-label { font-size: 11px; color: #666; }
 
-/* ─── FIELDS ─── */
-.field { margin-bottom: 12px; }
-.field label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #3a4a5c;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.field input, .field select {
-  width: 100%;
-  border: 1.5px solid #c8d0dc;
-  border-radius: 6px;
-  padding: 9px 11px;
-  font-size: 14px;
-  font-family: inherit;
-  background: #f8fafc;
-  color: #1a1a1a;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.field input:focus, .field select:focus {
-  border-color: #1e3a5f;
-  background: white;
-}
-.hint {
-  font-size: 11px;
-  color: #7a8a9a;
-  margin-top: 4px;
-  line-height: 1.5;
-}
-.hint a { color: #1565c0; }
+  table { width: 100%; border-collapse: collapse; margin: 0 20px; width: calc(100% - 40px); }
+  th { background: #1a1a2e; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #666; letter-spacing: 0.5px; border-bottom: 1px solid #2a2a4a; cursor: pointer; user-select: none; }
+  th:hover { color: #7c9cff; }
+  th.sorted { color: #7c9cff; }
+  td { padding: 10px 12px; border-bottom: 1px solid #1a1a2e; font-size: 13px; vertical-align: middle; }
+  tr:hover td { background: #1a1a2e; }
+  tr.called td { opacity: 0.4; }
+  tr.interested td { background: rgba(34,197,94,0.05); }
+  tr.not-interested td { background: rgba(239,68,68,0.05); }
 
-/* ─── NICHE CHIPS ─── */
-.chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 20px;
-  border: 1.5px solid #c8d0dc;
-  color: #5a6a80;
-  cursor: pointer;
-  background: white;
-  transition: all 0.12s;
-  user-select: none;
-}
-.chip:hover { border-color: #1e3a5f; color: #1e3a5f; }
-.chip.on { background: #1e3a5f; border-color: #1e3a5f; color: white; }
-.chip.all-chip { border-color: #1565c0; color: #1565c0; }
-.chip.all-chip.on { background: #1565c0; border-color: #1565c0; color: white; }
+  .score { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+  .score-high { background: #dc2626; color: white; }
+  .score-med { background: #d97706; color: white; }
+  .score-low { background: #16a34a; color: white; }
 
-/* ─── BUTTONS ─── */
-.btn-scan {
-  background: #1e3a5f;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 13px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  width: 100%;
-  letter-spacing: 0.3px;
-  transition: background 0.15s;
-}
-.btn-scan:hover { background: #154070; }
-.btn-scan:disabled { background: #9aabbd; cursor: not-allowed; }
+  .flag { display: inline-block; background: #2a2a4a; color: #aaa; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin: 1px; }
+  .flag.missing { background: #3a1a1a; color: #f87171; }
 
-/* ─── PROGRESS ─── */
-.progress-box {
-  background: #e8f4fd;
-  border: 1.5px solid #90caf9;
-  border-radius: 8px;
-  padding: 12px;
-  display: none;
-}
-.progress-box.show { display: block; }
-.progress-msg {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1565c0;
-  margin-bottom: 8px;
-  min-height: 18px;
-}
-.progress-bar-wrap {
-  background: #c5e3f7;
-  border-radius: 4px;
-  height: 8px;
-  overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  background: #1565c0;
-  border-radius: 4px;
-  transition: width 0.3s;
-  width: 0%;
-}
+  .business-name { font-weight: 600; color: #e0e0e0; }
+  .business-name a { color: inherit; text-decoration: none; }
+  .business-name a:hover { color: #7c9cff; text-decoration: underline; }
 
-/* ─── STAT CARDS ─── */
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.stat-card {
-  background: #f0f6ff;
-  border: 1.5px solid #c5d8f0;
-  border-radius: 8px;
-  padding: 10px 12px;
-  text-align: center;
-}
-.stat-num { font-size: 26px; font-weight: 700; color: #1e3a5f; line-height: 1; }
-.stat-num.green { color: #1b7a4a; }
-.stat-num.orange { color: #b45309; }
-.stat-lbl { font-size: 11px; font-weight: 600; color: #5a6a80; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px; }
+  .phone { font-family: monospace; color: #7c9cff; }
+  .rating { color: #f59e0b; }
 
-/* ─── MAIN AREA ─── */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .actions { display: flex; gap: 6px; }
+  select.status-sel { background: #1a1a2e; border: 1px solid #2a2a4a; color: #e0e0e0; padding: 4px 8px; border-radius: 4px; font-size: 11px; width: auto; }
 
-/* ─── TOOLBAR ─── */
-.toolbar {
-  background: white;
-  border-bottom: 2px solid #dde3ec;
-  padding: 12px 20px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.toolbar input[type="text"] {
-  flex: 1;
-  min-width: 200px;
-  max-width: 300px;
-  border: 1.5px solid #c8d0dc;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-family: inherit;
-  background: #f8fafc;
-  outline: none;
-}
-.toolbar input[type="text"]:focus { border-color: #1e3a5f; background: white; }
-.toolbar select {
-  border: 1.5px solid #c8d0dc;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 14px;
-  font-family: inherit;
-  background: #f8fafc;
-  cursor: pointer;
-  outline: none;
-  color: #1a1a1a;
-}
-.btn-sm {
-  border: 1.5px solid #c8d0dc;
-  border-radius: 6px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  background: white;
-  color: #3a4a5c;
-  transition: all 0.12s;
-}
-.btn-sm:hover { background: #f0f6ff; border-color: #1e3a5f; color: #1e3a5f; }
-.btn-sm.danger { color: #c62828; border-color: #ef9a9a; }
-.btn-sm.danger:hover { background: #fff5f5; border-color: #c62828; }
-.lead-count { margin-left: auto; font-size: 13px; font-weight: 600; color: #5a6a80; white-space: nowrap; }
+  .empty { text-align: center; padding: 60px 20px; color: #444; }
+  .empty h3 { font-size: 18px; margin-bottom: 8px; }
+  
+  .api-hint { font-size: 11px; color: #555; margin-top: 6px; }
+  .api-hint a { color: #7c9cff; }
 
-/* ─── TABLE ─── */
-.table-wrap { flex: 1; overflow: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 820px; }
-thead th {
-  background: #e8ecf4;
-  padding: 11px 14px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #3a4a5c;
-  text-align: left;
-  border-bottom: 2px solid #c8d0dc;
-  position: sticky;
-  top: 0;
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-}
-thead th:hover { background: #d8e0ee; color: #1e3a5f; }
-thead th.sorted { color: #1e3a5f; background: #d4e3f7; }
-tbody td {
-  padding: 10px 14px;
-  border-bottom: 1px solid #e8ecf2;
-  font-size: 14px;
-  vertical-align: middle;
-}
-tbody tr:hover td { background: #f4f8ff; }
-tbody tr.r-called td { color: #888; }
-tbody tr.r-interested td { background: #f0fdf6; }
-tbody tr.r-booked td { background: #e8f4ff; }
-tbody tr.r-not td { color: #bbb; }
+  .export-bar { padding: 12px 20px; display: flex; gap: 8px; align-items: center; }
+  .export-bar span { font-size: 12px; color: #666; }
 
-/* ─── SCORE BADGE ─── */
-.score-badge {
-  display: inline-block;
-  min-width: 44px;
-  text-align: center;
-  padding: 4px 8px;
-  border-radius: 5px;
-  font-size: 13px;
-  font-weight: 700;
-}
-.sc-hot  { background: #fde8e8; color: #c62828; border: 1px solid #f5a5a5; }
-.sc-warm { background: #fff3e0; color: #b45309; border: 1px solid #fbbf24; }
-.sc-med  { background: #fefce8; color: #7a6500; border: 1px solid #fde047; }
-.sc-low  { background: #f0fdf4; color: #1b7a4a; border: 1px solid #86efac; }
-
-/* ─── BIZ NAME ─── */
-.biz-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: #1a2a3a;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.biz-name a { color: inherit; text-decoration: none; }
-.biz-name a:hover { color: #1565c0; text-decoration: underline; }
-.biz-niche {
-  font-size: 11px;
-  font-weight: 600;
-  color: #7a8a9a;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-}
-
-/* ─── PHONE ─── */
-.phone-num { font-size: 14px; color: #1565c0; font-weight: 600; white-space: nowrap; }
-.no-phone { font-size: 12px; color: #c62828; font-weight: 600; }
-
-/* ─── FLAGS ─── */
-.flags-wrap { display: flex; flex-wrap: wrap; gap: 4px; max-width: 210px; }
-.flag-tag {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 3px;
-  background: #fde8e8;
-  color: #c62828;
-  border: 1px solid #f5a5a5;
-  white-space: nowrap;
-}
-
-/* ─── STATUS SELECT ─── */
-.status-sel {
-  border: 1.5px solid #c8d0dc;
-  border-radius: 5px;
-  padding: 5px 7px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  background: white;
-  cursor: pointer;
-  outline: none;
-  color: #1a1a1a;
-  width: 130px;
-}
-
-/* ─── CALL BUTTON ─── */
-.btn-call {
-  background: #1b7a4a;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 7px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.12s;
-}
-.btn-call:hover { background: #145e38; }
-.btn-call.no-phone { background: #9aabbd; cursor: default; }
-
-/* ─── EMPTY STATE ─── */
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: 14px;
-  color: #7a8a9a;
-  padding: 40px;
-  text-align: center;
-}
-.empty-icon { font-size: 60px; }
-.empty h3 { font-size: 20px; font-weight: 700; color: #3a4a5c; }
-.empty p { font-size: 15px; line-height: 1.7; max-width: 420px; }
-
-/* ─── MODAL ─── */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 200;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-.overlay.open { display: flex; }
-.modal {
-  background: white;
-  border-radius: 12px;
-  padding: 28px;
-  width: 92%;
-  max-width: 540px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
-}
-.modal-title {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #5a6a80;
-  margin-bottom: 5px;
-}
-.modal-biz {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a2a3a;
-  margin-bottom: 10px;
-  line-height: 1.2;
-}
-.modal-flags { margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 5px; }
-.script-label {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #5a6a80;
-  margin-bottom: 6px;
-}
-.script-box {
-  background: #f4f8ff;
-  border: 1.5px solid #c5d8f0;
-  border-radius: 8px;
-  padding: 16px;
-  font-size: 15px;
-  line-height: 1.8;
-  color: #1a2a3a;
-  margin-bottom: 12px;
-  cursor: pointer;
-}
-.script-box:hover { border-color: #1565c0; background: #eef4ff; }
-.script-box:hover::after { content: ' (click to copy)'; font-size: 12px; color: #1565c0; }
-.script-box strong { color: #1e3a5f; }
-.copy-hint { font-size: 12px; color: #7a8a9a; margin-bottom: 10px; }
-.notes-area {
-  width: 100%;
-  border: 1.5px solid #c8d0dc;
-  border-radius: 6px;
-  padding: 10px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
-  min-height: 70px;
-  margin-bottom: 14px;
-  outline: none;
-  background: #f8fafc;
-}
-.notes-area:focus { border-color: #1e3a5f; background: white; }
-.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.mbtn {
-  border: none;
-  border-radius: 6px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.12s;
-}
-.mbtn:hover { opacity: 0.85; }
-.mbtn-dial { background: #1b7a4a; color: white; }
-.mbtn-int { background: #1565c0; color: white; }
-.mbtn-vm { background: #f0f6ff; color: #1e3a5f; border: 1.5px solid #c5d8f0; }
-.mbtn-no { background: #fff5f5; color: #c62828; border: 1.5px solid #f5a5a5; }
-.mbtn-close { background: #f0f2f5; color: #5a6a80; margin-left: auto; }
-
-/* ─── TOAST ─── */
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #1e3a5f;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  z-index: 300;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-}
-.toast.show { opacity: 1; transform: translateY(0); }
-.toast.warn { background: #b45309; }
-.toast.ok { background: #1b7a4a; }
-
-/* ─── SCROLLBAR ─── */
-.sidebar::-webkit-scrollbar, .table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
-.sidebar::-webkit-scrollbar-track, .table-wrap::-webkit-scrollbar-track { background: #f0f2f5; }
-.sidebar::-webkit-scrollbar-thumb, .table-wrap::-webkit-scrollbar-thumb { background: #c8d0dc; border-radius: 4px; }
+  .niche-grid { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .niche-chip { background: #2a2a4a; color: #aaa; font-size: 11px; padding: 4px 10px; border-radius: 20px; cursor: pointer; border: 1px solid transparent; }
+  .niche-chip.active { background: #7c9cff22; color: #7c9cff; border-color: #7c9cff; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Maps To <span>Cash</span></h1>
-  <div class="header-sub">GBP Lead Finder · Polk County, FL</div>
-</div>
+<header>
+  <h1>🎯 Maps To Cash — Local Lead Finder</h1>
+  <span>Polk County, FL · No server required</span>
+</header>
 
-<div class="layout">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-
+<div class="setup">
+  <h2>Search Settings</h2>
+  <div class="setup-grid">
     <div>
-      <div class="section-title">API Key</div>
-      <div class="field">
-        <label>Google Maps API Key</label>
-        <input type="password" id="apiKey" placeholder="AIzaSy...">
-        <div class="hint">
-          Get free key at <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a><br>
-          Enable: <strong>Places API</strong> → Create Key
-        </div>
-      </div>
+      <label>Google Places API Key</label>
+      <input type="password" id="apiKey" placeholder="AIza..." value="">
+      <div class="api-hint">Get free key at <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Enable Places API</div>
     </div>
-
     <div>
-      <div class="section-title">Search</div>
-      <div class="field">
-        <label>Location</label>
-        <input type="text" id="location" value="Lakeland, FL">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div class="field">
-          <label>Results/Niche</label>
-          <select id="maxResults">
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="20">20</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Min Score</label>
-          <select id="minScore">
-            <option value="0">Show All</option>
-            <option value="2" selected>2+</option>
-            <option value="4">4+</option>
-            <option value="6">6+</option>
-          </select>
-        </div>
-      </div>
+      <label>Location</label>
+      <input type="text" id="location" value="Polk County, FL" placeholder="City, State">
     </div>
-
     <div>
-      <div class="section-title">Niches</div>
-      <div class="chip-wrap" id="chipWrap"></div>
-    </div>
-
-    <div>
-      <button class="btn-scan" id="scanBtn" onclick="startScan()">▶ Find Leads</button>
-    </div>
-
-    <div class="progress-box" id="progressBox">
-      <div class="progress-msg" id="progressMsg">Starting...</div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="section-title">Summary</div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-num" id="sTotal">0</div><div class="stat-lbl">Total</div></div>
-        <div class="stat-card"><div class="stat-num orange" id="sHot">0</div><div class="stat-lbl">Hot 6+</div></div>
-        <div class="stat-card"><div class="stat-num" id="sCalled">0</div><div class="stat-lbl">Called</div></div>
-        <div class="stat-card"><div class="stat-num green" id="sWins">0</div><div class="stat-lbl">Wins</div></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- MAIN -->
-  <div class="main">
-
-    <div class="toolbar">
-      <input type="text" id="filterText" placeholder="🔍 Filter by name, phone, niche..." oninput="render()">
-      <select id="filterStatus" onchange="render()">
-        <option value="all">All Status</option>
-        <option value="new">New</option>
-        <option value="called">Called</option>
-        <option value="interested">Interested</option>
-        <option value="booked">Booked</option>
-        <option value="not-interested">Not Interested</option>
+      <label>Max Results per Niche</label>
+      <select id="maxResults">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="60">60</option>
       </select>
-      <select id="sortBy" onchange="render()">
-        <option value="score">Score ↓ (Best First)</option>
-        <option value="niche">Niche A–Z</option>
-        <option value="reviews">Reviews ↓</option>
-        <option value="rating">Rating ↓</option>
-        <option value="name">Name A–Z</option>
-      </select>
-      <button class="btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
-      <button class="btn-sm danger" onclick="clearAll()">✕ Clear All</button>
-      <span class="lead-count" id="leadCount">0 leads</span>
     </div>
-
-    <div class="table-wrap">
-      <div class="empty" id="emptyState">
-        <div class="empty-icon">🎯</div>
-        <h3>No leads yet</h3>
-        <p>Enter your Google Maps API key, pick your niches, and click <strong>Find Leads</strong>. Businesses with weak Google Business Profiles appear here — scored by opportunity, sorted highest first.</p>
-        <p style="margin-top:10px;font-size:13px;color:#9aabbd">Your leads are saved locally and persist between sessions.</p>
-      </div>
-
-      <table id="leadsTable" style="display:none">
-        <thead>
-          <tr>
-            <th onclick="sortClick('score')" class="sorted" id="th-score">Score</th>
-            <th>Business</th>
-            <th>Phone</th>
-            <th onclick="sortClick('rating')">Rating</th>
-            <th onclick="sortClick('reviews')">Reviews</th>
-            <th>Missing from GBP</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
+    <div>
+      <button onclick="startScan()" id="scanBtn">🔍 Find Leads</button>
     </div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <label>Select Niches to Scan</label>
+    <div class="niche-grid" id="nicheGrid"></div>
   </div>
 </div>
 
-<!-- CALL MODAL -->
-<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-title">📞 Call Script</div>
-    <div class="modal-biz" id="mBiz">Business Name</div>
-    <div class="modal-flags" id="mFlags"></div>
-    <div class="script-label">Your opener — click to copy:</div>
-    <div class="script-box" id="mScript" onclick="copyScript()"></div>
-    <div class="copy-hint">Click the script to copy it to your clipboard.</div>
-    <textarea class="notes-area" id="mNotes" placeholder="Call notes — saved automatically..."></textarea>
-    <div class="modal-actions">
-      <button class="mbtn mbtn-dial" onclick="dialNow()">📞 Dial Now</button>
-      <button class="mbtn mbtn-int" onclick="setStatus('interested')">✅ Interested</button>
-      <button class="mbtn mbtn-vm" onclick="setStatus('called')">📬 Left VM</button>
-      <button class="mbtn mbtn-no" onclick="setStatus('not-interested')">❌ Not Interested</button>
-      <button class="mbtn mbtn-close" onclick="closeModal()">Close</button>
-    </div>
+<div class="stats" id="statsRow" style="display:none">
+  <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total Leads</div></div>
+  <div class="stat"><div class="stat-val" id="statHot">0</div><div class="stat-label">Hot (Score 7+)</div></div>
+  <div class="stat"><div class="stat-val" id="statCalled">0</div><div class="stat-label">Called</div></div>
+  <div class="stat"><div class="stat-val" id="statInterested">0</div><div class="stat-label">Interested</div></div>
+</div>
+
+<div class="progress" id="progressWrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+<div class="status-msg" id="statusMsg"></div>
+
+<div class="controls" id="controlsRow" style="display:none">
+  <input type="text" id="searchFilter" placeholder="Filter by name, phone, niche..." oninput="renderTable()">
+  <label class="sort-label">Sort:</label>
+  <select id="sortBy" onchange="renderTable()">
+    <option value="score">GBP Score ↓</option>
+    <option value="rating">Rating ↓</option>
+    <option value="reviews">Reviews ↓</option>
+    <option value="niche">Niche A-Z</option>
+  </select>
+  <select id="filterStatus" onchange="renderTable()">
+    <option value="all">All Leads</option>
+    <option value="new">New Only</option>
+    <option value="interested">Interested</option>
+    <option value="called">Called</option>
+    <option value="not-interested">Not Interested</option>
+  </select>
+  <div style="margin-left:auto; display:flex; gap:8px;">
+    <button class="secondary" onclick="exportCSV()">📥 Export CSV</button>
+    <button class="secondary" onclick="clearAll()">🗑 Clear</button>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="tableWrap">
+  <div class="empty" id="emptyState">
+    <h3>No leads yet</h3>
+    <p>Enter your Google Places API key and click Find Leads</p>
+  </div>
+  <table id="leadsTable" style="display:none">
+    <thead>
+      <tr>
+        <th onclick="setSortBy('score')" id="th-score">GBP Score ↕</th>
+        <th onclick="setSortBy('name')">Business</th>
+        <th>Phone</th>
+        <th onclick="setSortBy('niche')">Niche</th>
+        <th onclick="setSortBy('rating')">Rating</th>
+        <th onclick="setSortBy('reviews')">Reviews</th>
+        <th>Flags</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="leadsBody"></tbody>
+  </table>
+</div>
 
-<!-- Google Maps JS API loaded dynamically -->
 <script>
-// ─────────────────────────────────────────────
-// NICHES
-// ─────────────────────────────────────────────
 const NICHES = [
-  'HVAC','Roofer','Plumber','Electrician',
-  'Pest Control','Pool Service','Landscaper',
-  'Pressure Washing','Auto Repair','Window Tinting',
-  'Dentist','Chiropractor','Attorney','Handyman',
-  'Painting Contractor','Tree Service'
+  'HVAC', 'Roofer', 'Plumber', 'Electrician', 'Pest Control',
+  'Pool Service', 'Landscaper', 'Pressure Washing', 'Auto Repair',
+  'Window Tinting', 'Dentist', 'Chiropractor', 'Attorney', 'Mortgage Broker'
 ];
 
-let leads = JSON.parse(localStorage.getItem('mtc2_leads') || '[]');
-let selected = new Set(JSON.parse(localStorage.getItem('mtc2_niches') || '[]'));
-if (!selected.size) selected = new Set(NICHES.slice(0, 5));
+let allLeads = [];
+let sortBy = 'score';
+let sortDir = 'desc';
+let selectedNiches = new Set(NICHES.slice(0, 5)); // default first 5
 
-let sortKey = 'score';
-let activeId = null;
-let placesService = null;
-
-// ─────────────────────────────────────────────
-// NICHE CHIPS
-// ─────────────────────────────────────────────
-const wrap = document.getElementById('chipWrap');
-const allChip = Object.assign(document.createElement('div'), {
-  className: 'chip all-chip' + (selected.size === NICHES.length ? ' on' : ''),
-  textContent: 'ALL',
-  onclick: () => {
-    if (selected.size === NICHES.length) {
-      selected.clear();
-      document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('on'));
-      allChip.classList.remove('on');
-    } else {
-      NICHES.forEach(n => selected.add(n));
-      document.querySelectorAll('.niche-chip').forEach(c => c.classList.add('on'));
-      allChip.classList.add('on');
-    }
-    saveNiches();
-  }
-});
-wrap.appendChild(allChip);
-
+// Init niche chips
+const nicheGrid = document.getElementById('nicheGrid');
 NICHES.forEach(n => {
-  const c = Object.assign(document.createElement('div'), {
-    className: 'chip niche-chip' + (selected.has(n) ? ' on' : ''),
-    textContent: n,
-    onclick: () => {
-      if (selected.has(n)) { selected.delete(n); c.classList.remove('on'); }
-      else { selected.add(n); c.classList.add('on'); }
-      allChip.classList.toggle('on', selected.size === NICHES.length);
-      saveNiches();
-    }
-  });
-  wrap.appendChild(c);
+  const chip = document.createElement('div');
+  chip.className = 'niche-chip' + (selectedNiches.has(n) ? ' active' : '');
+  chip.textContent = n;
+  chip.onclick = () => {
+    if (selectedNiches.has(n)) selectedNiches.delete(n);
+    else selectedNiches.add(n);
+    chip.classList.toggle('active');
+  };
+  nicheGrid.appendChild(chip);
 });
 
-function saveNiches() { localStorage.setItem('mtc2_niches', JSON.stringify([...selected])); }
+// Load saved API key
+const savedKey = localStorage.getItem('gplaces_key') || 'AIzaSyDPOWvPzVWI0zMPoayjK5idYg5uUzQgB-0';
+document.getElementById('apiKey').value = savedKey;
 
-// ─────────────────────────────────────────────
-// API KEY — pre-fill
-// ─────────────────────────────────────────────
-const KEY = localStorage.getItem('mtc2_key') || 'AIzaSyDPOWvPzVWI0zMPoayjK5idYg5uUzQgB-0';
-document.getElementById('apiKey').value = KEY;
-
-// ─────────────────────────────────────────────
-// INIT TABLE ON LOAD
-// ─────────────────────────────────────────────
-if (leads.length) {
-  document.getElementById('leadsTable').style.display = 'table';
-  document.getElementById('emptyState').style.display = 'none';
-  render(); stats();
-}
-
-// ─────────────────────────────────────────────
-// LOAD GOOGLE MAPS JS API
-// ─────────────────────────────────────────────
-function loadMapsApi(key) {
-  return new Promise((resolve, reject) => {
-    if (window.google && window.google.maps) { resolve(); return; }
-    window._mapsReady = resolve;
-    const s = document.createElement('script');
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=_mapsReady`;
-    s.onerror = () => reject(new Error('Failed to load Maps API — check your API key and billing'));
-    document.head.appendChild(s);
-  });
-}
-
-// ─────────────────────────────────────────────
-// SCORE
-// ─────────────────────────────────────────────
-function score(p) {
-  let s = 0; const f = [];
-  if (!p.formatted_phone_number) { s += 2; f.push('No Phone'); }
-  if (!p.website) { s += 2; f.push('No Website'); }
-  const pics = (p.photos || []).length;
-  if (pics === 0) { s += 2; f.push('No Photos'); }
-  else if (pics < 5) { s += 1; f.push('Few Photos'); }
-  const rev = p.user_ratings_total || 0;
-  const rat = p.rating || 0;
-  if (rev === 0) { s += 3; f.push('0 Reviews'); }
-  else if (rev < 10) { s += 2; f.push('< 10 Reviews'); }
-  else if (rev < 30) { s += 1; f.push('< 30 Reviews'); }
-  if (rat > 0 && rat < 3.5) { s += 2; f.push('Low Rating'); }
-  else if (rat >= 3.5 && rat < 4.0) { s += 1; f.push('Rating < 4.0'); }
-  if (!p.opening_hours) { s += 1; f.push('No Hours Listed'); }
-  return { s: Math.min(s, 10), f };
-}
-
-// ─────────────────────────────────────────────
-// SCAN
-// ─────────────────────────────────────────────
-async function startScan() {
-  const key = document.getElementById('apiKey').value.trim();
-  if (!key) { toast('Enter your Google Maps API key', 'warn'); return; }
-  if (!selected.size) { toast('Select at least one niche', 'warn'); return; }
-
-  localStorage.setItem('mtc2_key', key);
-  const btn = document.getElementById('scanBtn');
-  btn.disabled = true; btn.textContent = '⏳ Scanning...';
-  showProgress('Loading Google Maps API...', 5);
-
-  try {
-    await loadMapsApi(key);
-  } catch(e) {
-    toast(e.message, 'warn');
-    btn.disabled = false; btn.textContent = '▶ Find Leads';
-    hideProgress();
-    return;
+// Load saved leads
+const savedLeads = localStorage.getItem('leads_data');
+if (savedLeads) {
+  allLeads = JSON.parse(savedLeads);
+  if (allLeads.length) {
+    document.getElementById('statsRow').style.display = 'flex';
+    document.getElementById('controlsRow').style.display = 'flex';
+    document.getElementById('leadsTable').style.display = 'table';
+    document.getElementById('emptyState').style.display = 'none';
+    renderTable();
+    updateStats();
   }
+}
 
-  // Create a dummy map element for PlacesService
-  const mapDiv = document.createElement('div');
-  const map = new google.maps.Map(mapDiv, { center: { lat: 28.0395, lng: -81.9498 }, zoom: 10 });
-  placesService = new google.maps.places.PlacesService(map);
+function setStatus(msg, pct) {
+  const s = document.getElementById('statusMsg');
+  const p = document.getElementById('progressBar');
+  const pw = document.getElementById('progressWrap');
+  s.style.display = 'block';
+  pw.style.display = 'block';
+  s.textContent = msg;
+  p.style.width = pct + '%';
+}
 
-  const location = document.getElementById('location').value || 'Lakeland, FL';
-  const maxR = parseInt(document.getElementById('maxResults').value);
-  const minS = parseInt(document.getElementById('minScore').value);
-  const niches = [...selected];
-  const fresh = [];
+function scoreGBP(place) {
+  let score = 0;
+  const flags = [];
+
+  if (!place.formatted_phone_number) { score += 2; flags.push('No Phone'); }
+  if (!place.website) { score += 2; flags.push('No Website'); }
+  
+  const photoCount = (place.photos || []).length;
+  if (photoCount === 0) { score += 2; flags.push('No Photos'); }
+  else if (photoCount < 5) { score += 1; flags.push('Few Photos'); }
+
+  const rating = place.rating || 0;
+  const reviewCount = place.user_ratings_total || 0;
+
+  if (reviewCount < 10) { score += 2; flags.push('< 10 Reviews'); }
+  else if (reviewCount < 25) { score += 1; flags.push('< 25 Reviews'); }
+
+  if (rating < 3.5 && rating > 0) { score += 2; flags.push('Low Rating'); }
+  else if (rating < 4.0 && rating > 0) { score += 1; flags.push('Rating < 4'); }
+
+  if (!place.opening_hours) { score += 1; flags.push('No Hours'); }
+
+  return { score: Math.min(score, 10), flags };
+}
+
+async function startScan() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey) { alert('Please enter your Google Places API key'); return; }
+  if (selectedNiches.size === 0) { alert('Select at least one niche'); return; }
+
+  localStorage.setItem('gplaces_key', apiKey);
+
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Scanning...';
+
+  const location = document.getElementById('location').value || 'Polk County, FL';
+  const maxResults = parseInt(document.getElementById('maxResults').value);
+  const niches = [...selectedNiches];
+  const newLeads = [];
+
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('statusMsg').style.display = 'block';
 
   for (let i = 0; i < niches.length; i++) {
     const niche = niches[i];
-    showProgress(`Scanning ${niche} in ${location}... (${i+1}/${niches.length})`, Math.round(((i+0.5)/niches.length)*90));
+    const pct = Math.round((i / niches.length) * 100);
+    setStatus(`Scanning ${niche} in ${location}...`, pct);
+
     try {
-      const results = await searchNiche(niche, location, maxR);
-      for (const p of results) {
-        const { s, f } = score(p);
-        if (s >= minS) {
-          fresh.push({
-            id: p.place_id,
-            name: p.name,
-            phone: p.formatted_phone_number || '',
-            website: p.website || '',
-            address: p.formatted_address || p.vicinity || '',
-            rating: p.rating || 0,
-            reviews: p.user_ratings_total || 0,
-            maps_url: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
-            niche, s, f,
-            status: 'new',
-            notes: '',
-            ts: Date.now()
-          });
-        }
-      }
-    } catch(e) { console.warn('Error scanning', niche, e); }
+      const leads = await searchNiche(apiKey, niche, location, maxResults);
+      newLeads.push(...leads);
+    } catch(e) {
+      console.error('Error scanning', niche, e);
+    }
+    await sleep(300);
+  }
+
+  setStatus(`Done! Found ${newLeads.length} leads.`, 100);
+
+  // Merge with existing (avoid dupes by place_id)
+  const existingIds = new Set(allLeads.map(l => l.place_id));
+  const fresh = newLeads.filter(l => !existingIds.has(l.place_id));
+  allLeads = [...fresh, ...allLeads];
+
+  // Sort by score desc
+  allLeads.sort((a, b) => b.score - a.score);
+
+  localStorage.setItem('leads_data', JSON.stringify(allLeads));
+
+  document.getElementById('statsRow').style.display = 'flex';
+  document.getElementById('controlsRow').style.display = 'flex';
+  document.getElementById('leadsTable').style.display = 'table';
+  document.getElementById('emptyState').style.display = 'none';
+
+  renderTable();
+  updateStats();
+
+  btn.disabled = false;
+  btn.textContent = '🔍 Find Leads';
+
+  setTimeout(() => {
+    document.getElementById('progressWrap').style.display = 'none';
+    document.getElementById('statusMsg').style.display = 'none';
+  }, 3000);
+}
+
+async function searchNiche(apiKey, niche, location, maxResults) {
+  const query = encodeURIComponent(`${niche} ${location}`);
+  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&key=${apiKey}`;
+  
+  // Use CORS proxy since we're calling from browser
+  const proxyUrl = `https://corsproxy.io/?${url}`;
+  
+  const resp = await fetch(proxyUrl);
+  const data = await resp.json();
+
+  if (!data.results) return [];
+
+  const leads = [];
+  const results = data.results.slice(0, maxResults);
+
+  for (const place of results) {
+    // Get details for each place
+    let details = place;
+    try {
+      const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_phone_number,website,photos,rating,user_ratings_total,opening_hours,formatted_address,url&key=${apiKey}`;
+      const detailResp = await fetch(`https://corsproxy.io/?${detailUrl}`);
+      const detailData = await detailResp.json();
+      if (detailData.result) details = { ...place, ...detailData.result };
+    } catch(e) {}
+
+    const { score, flags } = scoreGBP(details);
+
+    if (score >= 3) { // Only include leads with meaningful flags
+      leads.push({
+        place_id: place.place_id,
+        name: details.name || place.name,
+        phone: details.formatted_phone_number || '',
+        website: details.website || '',
+        address: details.formatted_address || '',
+        rating: details.rating || 0,
+        reviews: details.user_ratings_total || 0,
+        maps_url: details.url || `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+        niche,
+        score,
+        flags,
+        status: 'new',
+        notes: '',
+        added: Date.now()
+      });
+    }
     await sleep(100);
   }
 
-  showProgress('Done! Saving leads...', 100);
-
-  // Merge
-  const ex = new Map(leads.map(l => [l.id, l]));
-  for (const l of fresh) {
-    if (!ex.has(l.id)) ex.set(l.id, l);
-    else { const e = ex.get(l.id); e.s = l.s; e.f = l.f; if (l.phone) e.phone = l.phone; e.rating = l.rating; e.reviews = l.reviews; }
-  }
-  leads = [...ex.values()].sort((a,b) => b.s - a.s);
-  save();
-
-  document.getElementById('leadsTable').style.display = 'table';
-  document.getElementById('emptyState').style.display = 'none';
-  render(); stats();
-
-  const added = fresh.filter(f => !leads.find(l => l.id !== f.id)).length;
-  toast(`Found ${fresh.length} leads across ${niches.length} niches`, 'ok');
-
-  setTimeout(hideProgress, 3000);
-  btn.disabled = false; btn.textContent = '▶ Find Leads';
+  return leads;
 }
 
-// ─────────────────────────────────────────────
-// PLACES SEARCH (uses Maps JS API — no CORS)
-// ─────────────────────────────────────────────
-function searchNiche(niche, location, maxR) {
-  return new Promise((resolve) => {
-    const req = { query: `${niche} in ${location}`, fields: ['place_id','name','formatted_address','rating','user_ratings_total','photos','formatted_phone_number','website','opening_hours','vicinity'] };
-    placesService.textSearch(req, (results, status) => {
-      if (status !== google.maps.places.PlacesServiceStatus.OK || !results) { resolve([]); return; }
-      const batch = results.slice(0, maxR);
-      // Get details for each
-      let done = 0;
-      const out = [];
-      if (!batch.length) { resolve([]); return; }
-      batch.forEach(r => {
-        placesService.getDetails({
-          placeId: r.place_id,
-          fields: ['place_id','name','formatted_address','formatted_phone_number','website','rating','user_ratings_total','photos','opening_hours','vicinity']
-        }, (detail, ds) => {
-          out.push(ds === google.maps.places.PlacesServiceStatus.OK && detail ? detail : r);
-          if (++done === batch.length) resolve(out);
-        });
-      });
-    });
-  });
-}
+function renderTable() {
+  const filter = document.getElementById('searchFilter').value.toLowerCase();
+  const sortKey = document.getElementById('sortBy').value;
+  const statusFilter = document.getElementById('filterStatus').value;
 
-// ─────────────────────────────────────────────
-// RENDER TABLE
-// ─────────────────────────────────────────────
-function render() {
-  const txt = document.getElementById('filterText').value.toLowerCase();
-  const stf = document.getElementById('filterStatus').value;
-  const srt = document.getElementById('sortBy').value;
-
-  let rows = leads.filter(l => {
-    const m = !txt || l.name.toLowerCase().includes(txt) || l.phone.includes(txt) || l.niche.toLowerCase().includes(txt);
-    const s = stf === 'all' || l.status === stf;
-    return m && s;
+  let leads = allLeads.filter(l => {
+    const matchText = !filter || 
+      l.name.toLowerCase().includes(filter) ||
+      (l.phone && l.phone.includes(filter)) ||
+      l.niche.toLowerCase().includes(filter);
+    const matchStatus = statusFilter === 'all' || l.status === statusFilter;
+    return matchText && matchStatus;
   });
 
-  rows.sort((a,b) => {
-    if (srt === 'score')   return b.s - a.s;
-    if (srt === 'reviews') return b.reviews - a.reviews;
-    if (srt === 'rating')  return b.rating - a.rating;
-    if (srt === 'niche')   return a.niche.localeCompare(b.niche);
-    if (srt === 'name')    return a.name.localeCompare(b.name);
+  leads.sort((a, b) => {
+    if (sortKey === 'score') return b.score - a.score;
+    if (sortKey === 'rating') return b.rating - a.rating;
+    if (sortKey === 'reviews') return b.reviews - a.reviews;
+    if (sortKey === 'niche') return a.niche.localeCompare(b.niche);
+    if (sortKey === 'name') return a.name.localeCompare(b.name);
     return 0;
   });
 
-  const tbody = document.getElementById('tbody');
+  const tbody = document.getElementById('leadsBody');
   tbody.innerHTML = '';
 
-  rows.forEach(l => {
+  leads.forEach(lead => {
     const tr = document.createElement('tr');
-    const rc = { new:'', called:'r-called', interested:'r-interested', booked:'r-booked', 'not-interested':'r-not' };
-    tr.className = rc[l.status] || '';
+    tr.className = lead.status !== 'new' ? lead.status : '';
+    tr.dataset.id = lead.place_id;
 
-    const sc = l.s;
-    const bc = sc >= 7 ? 'sc-hot' : sc >= 5 ? 'sc-warm' : sc >= 3 ? 'sc-med' : 'sc-low';
+    const scoreClass = lead.score >= 7 ? 'score-high' : lead.score >= 5 ? 'score-med' : 'score-low';
+    const flagsHtml = lead.flags.map(f => `<span class="flag missing">${f}</span>`).join('');
+    const phoneHtml = lead.phone 
+      ? `<span class="phone">${lead.phone}</span>` 
+      : `<span style="color:#555">No phone</span>`;
 
     tr.innerHTML = `
-      <td><span class="score-badge ${bc}">${sc}/10</span></td>
+      <td><span class="score ${scoreClass}">${lead.score}/10</span></td>
       <td>
-        <div class="biz-name"><a href="${l.maps_url}" target="_blank" title="${esc(l.address)}">${esc(l.name)}</a></div>
-        <div class="biz-niche">${l.niche}</div>
+        <div class="business-name">
+          <a href="${lead.maps_url}" target="_blank" title="${lead.address}">${lead.name}</a>
+        </div>
+        <div style="font-size:11px;color:#555;margin-top:2px">${lead.niche}</div>
       </td>
-      <td>${l.phone ? `<span class="phone-num">${l.phone}</span>` : `<span class="no-phone">✗ No Phone</span>`}</td>
-      <td style="font-size:14px;color:#b45309;font-weight:600">${l.rating ? '★ ' + l.rating.toFixed(1) : '—'}</td>
-      <td style="font-size:14px;font-weight:600;color:#3a4a5c">${l.reviews}</td>
-      <td><div class="flags-wrap">${l.f.map(f=>`<span class="flag-tag">${f}</span>`).join('')}</div></td>
+      <td>${phoneHtml}</td>
+      <td style="font-size:12px;color:#888">${lead.niche}</td>
+      <td class="rating">${lead.rating ? '★ ' + lead.rating.toFixed(1) : '—'}</td>
+      <td style="color:#888">${lead.reviews || 0}</td>
+      <td style="max-width:200px">${flagsHtml}</td>
       <td>
-        <select class="status-sel" onchange="updateStatus('${l.id}',this.value)">
-          <option value="new"           ${l.status==='new'?'selected':''}>● New</option>
-          <option value="called"        ${l.status==='called'?'selected':''}>◌ Called</option>
-          <option value="interested"    ${l.status==='interested'?'selected':''}>✅ Interested</option>
-          <option value="booked"        ${l.status==='booked'?'selected':''}>📅 Booked</option>
-          <option value="not-interested" ${l.status==='not-interested'?'selected':''}>❌ Not Interested</option>
+        <select class="status-sel" onchange="updateStatus('${lead.place_id}', this.value)">
+          <option value="new" ${lead.status==='new'?'selected':''}>New</option>
+          <option value="called" ${lead.status==='called'?'selected':''}>Called</option>
+          <option value="interested" ${lead.status==='interested'?'selected':''}>✅ Interested</option>
+          <option value="not-interested" ${lead.status==='not-interested'?'selected':''}>❌ No</option>
+          <option value="booked" ${lead.status==='booked'?'selected':''}>📅 Booked</option>
         </select>
       </td>
       <td>
-        <button class="btn-call${l.phone?'':' no-phone'}" onclick="${l.phone ? `openModal('${l.id}')` : 'void(0)'}">
-          ${l.phone ? '📞 Call' : 'No Phone'}
-        </button>
+        <div class="actions">
+          ${lead.phone ? `<button class="call-btn" onclick="callLead('${lead.place_id}', '${lead.phone}')">📞 Call</button>` : ''}
+          <button class="secondary" style="padding:4px 8px;font-size:11px" onclick="copyScript('${lead.place_id}')">📋</button>
+        </div>
       </td>
     `;
     tbody.appendChild(tr);
   });
 
-  document.getElementById('leadCount').textContent = `${rows.length} of ${leads.length} leads`;
+  updateStats();
 }
 
-// ─────────────────────────────────────────────
-// MODAL
-// ─────────────────────────────────────────────
-function openModal(id) {
-  const l = leads.find(x => x.id === id);
-  if (!l) return;
-  activeId = id;
-  document.getElementById('mBiz').textContent = l.name;
-  document.getElementById('mFlags').innerHTML = l.f.map(f=>`<span class="flag-tag">${f}</span>`).join('');
-  document.getElementById('mNotes').value = l.notes || '';
-
-  // Build script
-  const missing = [];
-  if (l.f.includes('No Phone')) missing.push("your phone number isn't listed");
-  if (l.f.includes('No Website')) missing.push('no website linked');
-  if (l.f.some(x => x.includes('Photo'))) missing.push('few or no photos');
-  if (l.f.some(x => x.includes('Review'))) missing.push(`only ${l.reviews} reviews showing`);
-  if (l.f.includes('No Hours Listed')) missing.push('no business hours set');
-
-  const missStr = missing.length ? `Specifically — ${missing.join(', ')}.` : '';
-
-  document.getElementById('mScript').innerHTML = `
-    <strong>Hey, is this ${esc(l.name)}?</strong><br><br>
-    My name's Phil — I'm with Expert Incubators in Polk County.<br><br>
-    I was looking at Google Maps for local ${l.niche.toLowerCase()} businesses in the area and I noticed your Google listing has some things that are probably costing you calls every week. ${missStr}<br><br>
-    I do a free 10-minute Google Business Profile audit — I'll show you exactly what's happening and what it's costing you in missed leads.<br><br>
-    <strong>Is that something worth 10 minutes of your time?</strong>
-  `;
-
-  document.getElementById('overlay').classList.add('open');
-}
-
-function copyScript() {
-  const text = document.getElementById('mScript').innerText;
-  navigator.clipboard.writeText(text).then(() => toast('Script copied!', 'ok'));
-}
-
-function dialNow() {
-  const l = leads.find(x => x.id === activeId);
-  if (!l || !l.phone) return;
-  updateStatus(activeId, 'called');
-  window.location.href = `tel:${l.phone.replace(/\D/g,'')}`;
-}
-
-function setStatus(s) {
-  saveNotes();
-  updateStatus(activeId, s);
-  closeModal();
-}
-
-function saveNotes() {
-  if (!activeId) return;
-  const l = leads.find(x => x.id === activeId);
-  if (l) { l.notes = document.getElementById('mNotes').value; save(); }
-}
-
-function closeModal() {
-  saveNotes();
-  document.getElementById('overlay').classList.remove('open');
-  activeId = null;
-}
-
-// ─────────────────────────────────────────────
-// UTILS
-// ─────────────────────────────────────────────
 function updateStatus(id, status) {
-  const l = leads.find(x => x.id === id);
-  if (l) { l.status = status; save(); render(); stats(); }
+  const lead = allLeads.find(l => l.place_id === id);
+  if (lead) {
+    lead.status = status;
+    localStorage.setItem('leads_data', JSON.stringify(allLeads));
+    renderTable();
+  }
 }
 
-function stats() {
-  document.getElementById('sTotal').textContent = leads.length;
-  document.getElementById('sHot').textContent = leads.filter(l=>l.s>=6).length;
-  document.getElementById('sCalled').textContent = leads.filter(l=>['called','interested','booked','not-interested'].includes(l.status)).length;
-  document.getElementById('sWins').textContent = leads.filter(l=>['interested','booked'].includes(l.status)).length;
+function callLead(id, phone) {
+  // Mark as called
+  updateStatus(id, 'called');
+  // Open phone dialer
+  const clean = phone.replace(/\D/g,'');
+  window.location.href = `tel:${clean}`;
 }
 
-function save() { localStorage.setItem('mtc2_leads', JSON.stringify(leads)); }
-
-function showProgress(msg, pct) {
-  document.getElementById('progressBox').classList.add('show');
-  document.getElementById('progressMsg').textContent = msg;
-  document.getElementById('progressBar').style.width = pct + '%';
+function copyScript(id) {
+  const lead = allLeads.find(l => l.place_id === id);
+  if (!lead) return;
+  const script = `Hi, this is Phil from Expert Incubators. I'm calling about ${lead.name}'s Google Business Profile — I noticed a few things that might be costing you customers. I do a free 10-minute audit and can show you exactly what's happening. Is now a good time?`;
+  navigator.clipboard.writeText(script).then(() => {
+    // Brief flash
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✅';
+    setTimeout(() => btn.textContent = orig, 1000);
+  });
 }
-function hideProgress() { document.getElementById('progressBox').classList.remove('show'); }
 
-function sortClick(k) {
-  document.getElementById('sortBy').value = k;
-  document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
-  const el = document.getElementById('th-' + k);
-  if (el) el.classList.add('sorted');
-  render();
+function updateStats() {
+  document.getElementById('statTotal').textContent = allLeads.length;
+  document.getElementById('statHot').textContent = allLeads.filter(l => l.score >= 7).length;
+  document.getElementById('statCalled').textContent = allLeads.filter(l => l.status === 'called' || l.status === 'interested' || l.status === 'not-interested' || l.status === 'booked').length;
+  document.getElementById('statInterested').textContent = allLeads.filter(l => l.status === 'interested' || l.status === 'booked').length;
+}
+
+function setSortBy(key) {
+  document.getElementById('sortBy').value = key;
+  renderTable();
 }
 
 function exportCSV() {
-  if (!leads.length) { toast('No leads to export', 'warn'); return; }
-  const hdr = ['Name','Phone','Niche','Score','Rating','Reviews','Missing','Status','Notes','Address','Maps URL'];
-  const rows = leads.map(l => [
-    `"${l.name.replace(/"/g,'""')}"`, l.phone, l.niche, l.s, l.rating, l.reviews,
-    `"${l.f.join(', ')}"`, l.status,
-    `"${(l.notes||'').replace(/"/g,'""')}"`,
-    `"${l.address}"`, l.maps_url
+  const headers = ['Name','Phone','Niche','Rating','Reviews','Score','Flags','Status','Address','Maps URL'];
+  const rows = allLeads.map(l => [
+    `"${l.name}"`, l.phone, l.niche, l.rating, l.reviews, l.score,
+    `"${l.flags.join(', ')}"`, l.status, `"${l.address}"`, l.maps_url
   ]);
-  const csv = [hdr,...rows].map(r=>r.join(',')).join('\n');
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], {type: 'text/csv'});
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.href = URL.createObjectURL(blob);
   a.download = `leads-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
-  toast('CSV exported', 'ok');
 }
 
 function clearAll() {
   if (!confirm('Clear all leads? This cannot be undone.')) return;
-  leads = []; save();
-  document.getElementById('tbody').innerHTML = '';
+  allLeads = [];
+  localStorage.removeItem('leads_data');
+  document.getElementById('leadsBody').innerHTML = '';
   document.getElementById('leadsTable').style.display = 'none';
-  document.getElementById('emptyState').style.display = 'flex';
-  stats(); toast('Cleared');
+  document.getElementById('emptyState').style.display = 'block';
+  document.getElementById('statsRow').style.display = 'none';
+  document.getElementById('controlsRow').style.display = 'none';
 }
 
-function toast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (type ? ' ' + type : '');
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
 </body>
 </html>
