@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Maps To Cash — Lead Finder</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f0f2f5;
+  color: #1a1a1a;
+  font-size: 15px;
+}
+
+/* ─── HEADER ─── */
+.header {
+  background: #1e3a5f;
+  color: white;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.header h1 span { color: #4fc3f7; }
+.header-sub { font-size: 13px; color: #90caf9; margin-left: auto; }
+
+/* ─── LAYOUT ─── */
+.layout { display: flex; height: calc(100vh - 52px); }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: white;
+  border-right: 2px solid #dde3ec;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #5a6a80;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e8ecf2;
+}
+
+/* ─── FIELDS ─── */
+.field { margin-bottom: 12px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3a4a5c;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.field input, .field select {
+  width: 100%;
+  border: 1.5px solid #c8d0dc;
+  border-radius: 6px;
+  padding: 9px 11px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #f8fafc;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus {
+  border-color: #1e3a5f;
+  background: white;
+}
+.hint {
+  font-size: 11px;
+  color: #7a8a9a;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.hint a { color: #1565c0; }
+
+/* ─── NICHE CHIPS ─── */
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #c8d0dc;
+  color: #5a6a80;
+  cursor: pointer;
+  background: white;
+  transition: all 0.12s;
+  user-select: none;
+}
+.chip:hover { border-color: #1e3a5f; color: #1e3a5f; }
+.chip.on { background: #1e3a5f; border-color: #1e3a5f; color: white; }
+.chip.all-chip { border-color: #1565c0; color: #1565c0; }
+.chip.all-chip.on { background: #1565c0; border-color: #1565c0; color: white; }
+
+/* ─── BUTTONS ─── */
+.btn-scan {
+  background: #1e3a5f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.3px;
+  transition: background 0.15s;
+}
+.btn-scan:hover { background: #154070; }
+.btn-scan:disabled { background: #9aabbd; cursor: not-allowed; }
+
+/* ─── PROGRESS ─── */
+.progress-box {
+  background: #e8f4fd;
+  border: 1.5px solid #90caf9;
+  border-radius: 8px;
+  padding: 12px;
+  display: none;
+}
+.progress-box.show { display: block; }
+.progress-msg {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1565c0;
+  margin-bottom: 8px;
+  min-height: 18px;
+}
+.progress-bar-wrap {
+  background: #c5e3f7;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: #1565c0;
+  border-radius: 4px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+/* ─── STAT CARDS ─── */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-card {
+  background: #f0f6ff;
+  border: 1.5px solid #c5d8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.stat-num { font-size: 26px; font-weight: 700; color: #1e3a5f; line-height: 1; }
+.stat-num.green { color: #1b7a4a; }
+.stat-num.orange { color: #b45309; }
+.stat-lbl { font-size: 11px; font-weight: 600; color: #5a6a80; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px; }
+
+/* ─── MAIN AREA ─── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ─── TOOLBAR ─── */
+.toolbar {
+  background: white;
+  border-bottom: 2px solid #dde3ec;
+  padding: 12px 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.toolbar input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+  border: 1.5px solid #c8d0dc;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #f8fafc;
+  outline: none;
+}
+.toolbar input[type="text"]:focus { border-color: #1e3a5f; background: white; }
+.toolbar select {
+  border: 1.5px solid #c8d0dc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #f8fafc;
+  cursor: pointer;
+  outline: none;
+  color: #1a1a1a;
+}
+.btn-sm {
+  border: 1.5px solid #c8d0dc;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: white;
+  color: #3a4a5c;
+  transition: all 0.12s;
+}
+.btn-sm:hover { background: #f0f6ff; border-color: #1e3a5f; color: #1e3a5f; }
+.btn-sm.danger { color: #c62828; border-color: #ef9a9a; }
+.btn-sm.danger:hover { background: #fff5f5; border-color: #c62828; }
+.lead-count { margin-left: auto; font-size: 13px; font-weight: 600; color: #5a6a80; white-space: nowrap; }
+
+/* ─── TABLE ─── */
+.table-wrap { flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
+thead th {
+  background: #e8ecf4;
+  padding: 11px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #3a4a5c;
+  text-align: left;
+  border-bottom: 2px solid #c8d0dc;
+  position: sticky;
+  top: 0;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+thead th:hover { background: #d8e0ee; color: #1e3a5f; }
+thead th.sorted { color: #1e3a5f; background: #d4e3f7; }
+tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #e8ecf2;
+  font-size: 14px;
+  vertical-align: middle;
+}
+tbody tr:hover td { background: #f4f8ff; }
+tbody tr.r-called td { color: #888; }
+tbody tr.r-interested td { background: #f0fdf6; }
+tbody tr.r-booked td { background: #e8f4ff; }
+tbody tr.r-not td { color: #bbb; }
+
+/* ─── SCORE BADGE ─── */
+.score-badge {
+  display: inline-block;
+  min-width: 44px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.sc-hot  { background: #fde8e8; color: #c62828; border: 1px solid #f5a5a5; }
+.sc-warm { background: #fff3e0; color: #b45309; border: 1px solid #fbbf24; }
+.sc-med  { background: #fefce8; color: #7a6500; border: 1px solid #fde047; }
+.sc-low  { background: #f0fdf4; color: #1b7a4a; border: 1px solid #86efac; }
+
+/* ─── BIZ NAME ─── */
+.biz-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1a2a3a;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.biz-name a { color: inherit; text-decoration: none; }
+.biz-name a:hover { color: #1565c0; text-decoration: underline; }
+.biz-niche {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7a8a9a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* ─── PHONE ─── */
+.phone-num { font-size: 14px; color: #1565c0; font-weight: 600; white-space: nowrap; }
+.no-phone { font-size: 12px; color: #c62828; font-weight: 600; }
+
+/* ─── FLAGS ─── */
+.flags-wrap { display: flex; flex-wrap: wrap; gap: 4px; max-width: 210px; }
+.flag-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: #fde8e8;
+  color: #c62828;
+  border: 1px solid #f5a5a5;
+  white-space: nowrap;
+}
+
+/* ─── STATUS SELECT ─── */
+.status-sel {
+  border: 1.5px solid #c8d0dc;
+  border-radius: 5px;
+  padding: 5px 7px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+  outline: none;
+  color: #1a1a1a;
+  width: 130px;
+}
+
+/* ─── CALL BUTTON ─── */
+.btn-call {
+  background: #1b7a4a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.btn-call:hover { background: #145e38; }
+.btn-call.no-phone { background: #9aabbd; cursor: default; }
+
+/* ─── EMPTY STATE ─── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 14px;
+  color: #7a8a9a;
+  padding: 40px;
+  text-align: center;
+}
+.empty-icon { font-size: 60px; }
+.empty h3 { font-size: 20px; font-weight: 700; color: #3a4a5c; }
+.empty p { font-size: 15px; line-height: 1.7; max-width: 420px; }
+
+/* ─── MODAL ─── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  width: 92%;
+  max-width: 540px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+}
+.modal-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #5a6a80;
+  margin-bottom: 5px;
+}
+.modal-biz {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a2a3a;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.modal-flags { margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 5px; }
+.script-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #5a6a80;
+  margin-bottom: 6px;
+}
+.script-box {
+  background: #f4f8ff;
+  border: 1.5px solid #c5d8f0;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #1a2a3a;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+.script-box:hover { border-color: #1565c0; background: #eef4ff; }
+.script-box:hover::after { content: ' (click to copy)'; font-size: 12px; color: #1565c0; }
+.script-box strong { color: #1e3a5f; }
+.copy-hint { font-size: 12px; color: #7a8a9a; margin-bottom: 10px; }
+.notes-area {
+  width: 100%;
+  border: 1.5px solid #c8d0dc;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 70px;
+  margin-bottom: 14px;
+  outline: none;
+  background: #f8fafc;
+}
+.notes-area:focus { border-color: #1e3a5f; background: white; }
+.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.mbtn {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.12s;
+}
+.mbtn:hover { opacity: 0.85; }
+.mbtn-dial { background: #1b7a4a; color: white; }
+.mbtn-int { background: #1565c0; color: white; }
+.mbtn-vm { background: #f0f6ff; color: #1e3a5f; border: 1.5px solid #c5d8f0; }
+.mbtn-no { background: #fff5f5; color: #c62828; border: 1.5px solid #f5a5a5; }
+.mbtn-close { background: #f0f2f5; color: #5a6a80; margin-left: auto; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #1e3a5f;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 300;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.warn { background: #b45309; }
+.toast.ok { background: #1b7a4a; }
+
+/* ─── SCROLLBAR ─── */
+.sidebar::-webkit-scrollbar, .table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+.sidebar::-webkit-scrollbar-track, .table-wrap::-webkit-scrollbar-track { background: #f0f2f5; }
+.sidebar::-webkit-scrollbar-thumb, .table-wrap::-webkit-scrollbar-thumb { background: #c8d0dc; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Maps To <span>Cash</span></h1>
+  <div class="header-sub">GBP Lead Finder · Polk County, FL</div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div>
+      <div class="section-title">API Key</div>
+      <div class="field">
+        <label>Google Maps API Key</label>
+        <input type="password" id="apiKey" placeholder="AIzaSy...">
+        <div class="hint">
+          Get free key at <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a><br>
+          Enable: <strong>Places API</strong> → Create Key
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Search</div>
+      <div class="field">
+        <label>Location</label>
+        <input type="text" id="location" value="Lakeland, FL">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="field">
+          <label>Results/Niche</label>
+          <select id="maxResults">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Min Score</label>
+          <select id="minScore">
+            <option value="0">Show All</option>
+            <option value="2" selected>2+</option>
+            <option value="4">4+</option>
+            <option value="6">6+</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Niches</div>
+      <div class="chip-wrap" id="chipWrap"></div>
+    </div>
+
+    <div>
+      <button class="btn-scan" id="scanBtn" onclick="startScan()">▶ Find Leads</button>
+    </div>
+
+    <div class="progress-box" id="progressBox">
+      <div class="progress-msg" id="progressMsg">Starting...</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Summary</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="sTotal">0</div><div class="stat-lbl">Total</div></div>
+        <div class="stat-card"><div class="stat-num orange" id="sHot">0</div><div class="stat-lbl">Hot 6+</div></div>
+        <div class="stat-card"><div class="stat-num" id="sCalled">0</div><div class="stat-lbl">Called</div></div>
+        <div class="stat-card"><div class="stat-num green" id="sWins">0</div><div class="stat-lbl">Wins</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="toolbar">
+      <input type="text" id="filterText" placeholder="🔍 Filter by name, phone, niche..." oninput="render()">
+      <select id="filterStatus" onchange="render()">
+        <option value="all">All Status</option>
+        <option value="new">New</option>
+        <option value="called">Called</option>
+        <option value="interested">Interested</option>
+        <option value="booked">Booked</option>
+        <option value="not-interested">Not Interested</option>
+      </select>
+      <select id="sortBy" onchange="render()">
+        <option value="score">Score ↓ (Best First)</option>
+        <option value="niche">Niche A–Z</option>
+        <option value="reviews">Reviews ↓</option>
+        <option value="rating">Rating ↓</option>
+        <option value="name">Name A–Z</option>
+      </select>
+      <button class="btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn-sm danger" onclick="clearAll()">✕ Clear All</button>
+      <span class="lead-count" id="leadCount">0 leads</span>
+    </div>
+
+    <div class="table-wrap">
+      <div class="empty" id="emptyState">
+        <div class="empty-icon">🎯</div>
+        <h3>No leads yet</h3>
+        <p>Enter your Google Maps API key, pick your niches, and click <strong>Find Leads</strong>. Businesses with weak Google Business Profiles appear here — scored by opportunity, sorted highest first.</p>
+        <p style="margin-top:10px;font-size:13px;color:#9aabbd">Your leads are saved locally and persist between sessions.</p>
+      </div>
+
+      <table id="leadsTable" style="display:none">
+        <thead>
+          <tr>
+            <th onclick="sortClick('score')" class="sorted" id="th-score">Score</th>
+            <th>Business</th>
+            <th>Phone</th>
+            <th onclick="sortClick('rating')">Rating</th>
+            <th onclick="sortClick('reviews')">Reviews</th>
+            <th>Missing from GBP</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CALL MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">📞 Call Script</div>
+    <div class="modal-biz" id="mBiz">Business Name</div>
+    <div class="modal-flags" id="mFlags"></div>
+    <div class="script-label">Your opener — click to copy:</div>
+    <div class="script-box" id="mScript" onclick="copyScript()"></div>
+    <div class="copy-hint">Click the script to copy it to your clipboard.</div>
+    <textarea class="notes-area" id="mNotes" placeholder="Call notes — saved automatically..."></textarea>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-dial" onclick="dialNow()">📞 Dial Now</button>
+      <button class="mbtn mbtn-int" onclick="setStatus('interested')">✅ Interested</button>
+      <button class="mbtn mbtn-vm" onclick="setStatus('called')">📬 Left VM</button>
+      <button class="mbtn mbtn-no" onclick="setStatus('not-interested')">❌ Not Interested</button>
+      <button class="mbtn mbtn-close" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Google Maps JS API loaded dynamically -->
+<script>
+// ─────────────────────────────────────────────
+// NICHES
+// ─────────────────────────────────────────────
+const NICHES = [
+  'HVAC','Roofer','Plumber','Electrician',
+  'Pest Control','Pool Service','Landscaper',
+  'Pressure Washing','Auto Repair','Window Tinting',
+  'Dentist','Chiropractor','Attorney','Handyman',
+  'Painting Contractor','Tree Service'
+];
+
+let leads = JSON.parse(localStorage.getItem('mtc2_leads') || '[]');
+let selected = new Set(JSON.parse(localStorage.getItem('mtc2_niches') || '[]'));
+if (!selected.size) selected = new Set(NICHES.slice(0, 5));
+
+let sortKey = 'score';
+let activeId = null;
+let placesService = null;
+
+// ─────────────────────────────────────────────
+// NICHE CHIPS
+// ─────────────────────────────────────────────
+const wrap = document.getElementById('chipWrap');
+const allChip = Object.assign(document.createElement('div'), {
+  className: 'chip all-chip' + (selected.size === NICHES.length ? ' on' : ''),
+  textContent: 'ALL',
+  onclick: () => {
+    if (selected.size === NICHES.length) {
+      selected.clear();
+      document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('on'));
+      allChip.classList.remove('on');
+    } else {
+      NICHES.forEach(n => selected.add(n));
+      document.querySelectorAll('.niche-chip').forEach(c => c.classList.add('on'));
+      allChip.classList.add('on');
+    }
+    saveNiches();
+  }
+});
+wrap.appendChild(allChip);
+
+NICHES.forEach(n => {
+  const c = Object.assign(document.createElement('div'), {
+    className: 'chip niche-chip' + (selected.has(n) ? ' on' : ''),
+    textContent: n,
+    onclick: () => {
+      if (selected.has(n)) { selected.delete(n); c.classList.remove('on'); }
+      else { selected.add(n); c.classList.add('on'); }
+      allChip.classList.toggle('on', selected.size === NICHES.length);
+      saveNiches();
+    }
+  });
+  wrap.appendChild(c);
+});
+
+function saveNiches() { localStorage.setItem('mtc2_niches', JSON.stringify([...selected])); }
+
+// ─────────────────────────────────────────────
+// API KEY — pre-fill
+// ─────────────────────────────────────────────
+const KEY = localStorage.getItem('mtc2_key') || 'AIzaSyDPOWvPzVWI0zMPoayjK5idYg5uUzQgB-0';
+document.getElementById('apiKey').value = KEY;
+
+// ─────────────────────────────────────────────
+// INIT TABLE ON LOAD
+// ─────────────────────────────────────────────
+if (leads.length) {
+  document.getElementById('leadsTable').style.display = 'table';
+  document.getElementById('emptyState').style.display = 'none';
+  render(); stats();
+}
+
+// ─────────────────────────────────────────────
+// LOAD GOOGLE MAPS JS API
+// ─────────────────────────────────────────────
+function loadMapsApi(key) {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) { resolve(); return; }
+    window._mapsReady = resolve;
+    const s = document.createElement('script');
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=_mapsReady`;
+    s.onerror = () => reject(new Error('Failed to load Maps API — check your API key and billing'));
+    document.head.appendChild(s);
+  });
+}
+
+// ─────────────────────────────────────────────
+// SCORE
+// ─────────────────────────────────────────────
+function score(p) {
+  let s = 0; const f = [];
+  if (!p.formatted_phone_number) { s += 2; f.push('No Phone'); }
+  if (!p.website) { s += 2; f.push('No Website'); }
+  const pics = (p.photos || []).length;
+  if (pics === 0) { s += 2; f.push('No Photos'); }
+  else if (pics < 5) { s += 1; f.push('Few Photos'); }
+  const rev = p.user_ratings_total || 0;
+  const rat = p.rating || 0;
+  if (rev === 0) { s += 3; f.push('0 Reviews'); }
+  else if (rev < 10) { s += 2; f.push('< 10 Reviews'); }
+  else if (rev < 30) { s += 1; f.push('< 30 Reviews'); }
+  if (rat > 0 && rat < 3.5) { s += 2; f.push('Low Rating'); }
+  else if (rat >= 3.5 && rat < 4.0) { s += 1; f.push('Rating < 4.0'); }
+  if (!p.opening_hours) { s += 1; f.push('No Hours Listed'); }
+  return { s: Math.min(s, 10), f };
+}
+
+// ─────────────────────────────────────────────
+// SCAN
+// ─────────────────────────────────────────────
+async function startScan() {
+  const key = document.getElementById('apiKey').value.trim();
+  if (!key) { toast('Enter your Google Maps API key', 'warn'); return; }
+  if (!selected.size) { toast('Select at least one niche', 'warn'); return; }
+
+  localStorage.setItem('mtc2_key', key);
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true; btn.textContent = '⏳ Scanning...';
+  showProgress('Loading Google Maps API...', 5);
+
+  try {
+    await loadMapsApi(key);
+  } catch(e) {
+    toast(e.message, 'warn');
+    btn.disabled = false; btn.textContent = '▶ Find Leads';
+    hideProgress();
+    return;
+  }
+
+  // Create a dummy map element for PlacesService
+  const mapDiv = document.createElement('div');
+  const map = new google.maps.Map(mapDiv, { center: { lat: 28.0395, lng: -81.9498 }, zoom: 10 });
+  placesService = new google.maps.places.PlacesService(map);
+
+  const location = document.getElementById('location').value || 'Lakeland, FL';
+  const maxR = parseInt(document.getElementById('maxResults').value);
+  const minS = parseInt(document.getElementById('minScore').value);
+  const niches = [...selected];
+  const fresh = [];
+
+  for (let i = 0; i < niches.length; i++) {
+    const niche = niches[i];
+    showProgress(`Scanning ${niche} in ${location}... (${i+1}/${niches.length})`, Math.round(((i+0.5)/niches.length)*90));
+    try {
+      const results = await searchNiche(niche, location, maxR);
+      for (const p of results) {
+        const { s, f } = score(p);
+        if (s >= minS) {
+          fresh.push({
+            id: p.place_id,
+            name: p.name,
+            phone: p.formatted_phone_number || '',
+            website: p.website || '',
+            address: p.formatted_address || p.vicinity || '',
+            rating: p.rating || 0,
+            reviews: p.user_ratings_total || 0,
+            maps_url: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
+            niche, s, f,
+            status: 'new',
+            notes: '',
+            ts: Date.now()
+          });
+        }
+      }
+    } catch(e) { console.warn('Error scanning', niche, e); }
+    await sleep(100);
+  }
+
+  showProgress('Done! Saving leads...', 100);
+
+  // Merge
+  const ex = new Map(leads.map(l => [l.id, l]));
+  for (const l of fresh) {
+    if (!ex.has(l.id)) ex.set(l.id, l);
+    else { const e = ex.get(l.id); e.s = l.s; e.f = l.f; if (l.phone) e.phone = l.phone; e.rating = l.rating; e.reviews = l.reviews; }
+  }
+  leads = [...ex.values()].sort((a,b) => b.s - a.s);
+  save();
+
+  document.getElementById('leadsTable').style.display = 'table';
+  document.getElementById('emptyState').style.display = 'none';
+  render(); stats();
+
+  const added = fresh.filter(f => !leads.find(l => l.id !== f.id)).length;
+  toast(`Found ${fresh.length} leads across ${niches.length} niches`, 'ok');
+
+  setTimeout(hideProgress, 3000);
+  btn.disabled = false; btn.textContent = '▶ Find Leads';
+}
+
+// ─────────────────────────────────────────────
+// PLACES SEARCH (uses Maps JS API — no CORS)
+// ─────────────────────────────────────────────
+function searchNiche(niche, location, maxR) {
+  return new Promise((resolve) => {
+    const req = { query: `${niche} in ${location}`, fields: ['place_id','name','formatted_address','rating','user_ratings_total','photos','formatted_phone_number','website','opening_hours','vicinity'] };
+    placesService.textSearch(req, (results, status) => {
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !results) { resolve([]); return; }
+      const batch = results.slice(0, maxR);
+      // Get details for each
+      let done = 0;
+      const out = [];
+      if (!batch.length) { resolve([]); return; }
+      batch.forEach(r => {
+        placesService.getDetails({
+          placeId: r.place_id,
+          fields: ['place_id','name','formatted_address','formatted_phone_number','website','rating','user_ratings_total','photos','opening_hours','vicinity']
+        }, (detail, ds) => {
+          out.push(ds === google.maps.places.PlacesServiceStatus.OK && detail ? detail : r);
+          if (++done === batch.length) resolve(out);
+        });
+      });
+    });
+  });
+}
+
+// ─────────────────────────────────────────────
+// RENDER TABLE
+// ─────────────────────────────────────────────
+function render() {
+  const txt = document.getElementById('filterText').value.toLowerCase();
+  const stf = document.getElementById('filterStatus').value;
+  const srt = document.getElementById('sortBy').value;
+
+  let rows = leads.filter(l => {
+    const m = !txt || l.name.toLowerCase().includes(txt) || l.phone.includes(txt) || l.niche.toLowerCase().includes(txt);
+    const s = stf === 'all' || l.status === stf;
+    return m && s;
+  });
+
+  rows.sort((a,b) => {
+    if (srt === 'score')   return b.s - a.s;
+    if (srt === 'reviews') return b.reviews - a.reviews;
+    if (srt === 'rating')  return b.rating - a.rating;
+    if (srt === 'niche')   return a.niche.localeCompare(b.niche);
+    if (srt === 'name')    return a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  rows.forEach(l => {
+    const tr = document.createElement('tr');
+    const rc = { new:'', called:'r-called', interested:'r-interested', booked:'r-booked', 'not-interested':'r-not' };
+    tr.className = rc[l.status] || '';
+
+    const sc = l.s;
+    const bc = sc >= 7 ? 'sc-hot' : sc >= 5 ? 'sc-warm' : sc >= 3 ? 'sc-med' : 'sc-low';
+
+    tr.innerHTML = `
+      <td><span class="score-badge ${bc}">${sc}/10</span></td>
+      <td>
+        <div class="biz-name"><a href="${l.maps_url}" target="_blank" title="${esc(l.address)}">${esc(l.name)}</a></div>
+        <div class="biz-niche">${l.niche}</div>
+      </td>
+      <td>${l.phone ? `<span class="phone-num">${l.phone}</span>` : `<span class="no-phone">✗ No Phone</span>`}</td>
+      <td style="font-size:14px;color:#b45309;font-weight:600">${l.rating ? '★ ' + l.rating.toFixed(1) : '—'}</td>
+      <td style="font-size:14px;font-weight:600;color:#3a4a5c">${l.reviews}</td>
+      <td><div class="flags-wrap">${l.f.map(f=>`<span class="flag-tag">${f}</span>`).join('')}</div></td>
+      <td>
+        <select class="status-sel" onchange="updateStatus('${l.id}',this.value)">
+          <option value="new"           ${l.status==='new'?'selected':''}>● New</option>
+          <option value="called"        ${l.status==='called'?'selected':''}>◌ Called</option>
+          <option value="interested"    ${l.status==='interested'?'selected':''}>✅ Interested</option>
+          <option value="booked"        ${l.status==='booked'?'selected':''}>📅 Booked</option>
+          <option value="not-interested" ${l.status==='not-interested'?'selected':''}>❌ Not Interested</option>
+        </select>
+      </td>
+      <td>
+        <button class="btn-call${l.phone?'':' no-phone'}" onclick="${l.phone ? `openModal('${l.id}')` : 'void(0)'}">
+          ${l.phone ? '📞 Call' : 'No Phone'}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('leadCount').textContent = `${rows.length} of ${leads.length} leads`;
+}
+
+// ─────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────
+function openModal(id) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  activeId = id;
+  document.getElementById('mBiz').textContent = l.name;
+  document.getElementById('mFlags').innerHTML = l.f.map(f=>`<span class="flag-tag">${f}</span>`).join('');
+  document.getElementById('mNotes').value = l.notes || '';
+
+  // Build script
+  const missing = [];
+  if (l.f.includes('No Phone')) missing.push("your phone number isn't listed");
+  if (l.f.includes('No Website')) missing.push('no website linked');
+  if (l.f.some(x => x.includes('Photo'))) missing.push('few or no photos');
+  if (l.f.some(x => x.includes('Review'))) missing.push(`only ${l.reviews} reviews showing`);
+  if (l.f.includes('No Hours Listed')) missing.push('no business hours set');
+
+  const missStr = missing.length ? `Specifically — ${missing.join(', ')}.` : '';
+
+  document.getElementById('mScript').innerHTML = `
+    <strong>Hey, is this ${esc(l.name)}?</strong><br><br>
+    My name's Phil — I'm with Expert Incubators in Polk County.<br><br>
+    I was looking at Google Maps for local ${l.niche.toLowerCase()} businesses in the area and I noticed your Google listing has some things that are probably costing you calls every week. ${missStr}<br><br>
+    I do a free 10-minute Google Business Profile audit — I'll show you exactly what's happening and what it's costing you in missed leads.<br><br>
+    <strong>Is that something worth 10 minutes of your time?</strong>
+  `;
+
+  document.getElementById('overlay').classList.add('open');
+}
+
+function copyScript() {
+  const text = document.getElementById('mScript').innerText;
+  navigator.clipboard.writeText(text).then(() => toast('Script copied!', 'ok'));
+}
+
+function dialNow() {
+  const l = leads.find(x => x.id === activeId);
+  if (!l || !l.phone) return;
+  updateStatus(activeId, 'called');
+  window.location.href = `tel:${l.phone.replace(/\D/g,'')}`;
+}
+
+function setStatus(s) {
+  saveNotes();
+  updateStatus(activeId, s);
+  closeModal();
+}
+
+function saveNotes() {
+  if (!activeId) return;
+  const l = leads.find(x => x.id === activeId);
+  if (l) { l.notes = document.getElementById('mNotes').value; save(); }
+}
+
+function closeModal() {
+  saveNotes();
+  document.getElementById('overlay').classList.remove('open');
+  activeId = null;
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function updateStatus(id, status) {
+  const l = leads.find(x => x.id === id);
+  if (l) { l.status = status; save(); render(); stats(); }
+}
+
+function stats() {
+  document.getElementById('sTotal').textContent = leads.length;
+  document.getElementById('sHot').textContent = leads.filter(l=>l.s>=6).length;
+  document.getElementById('sCalled').textContent = leads.filter(l=>['called','interested','booked','not-interested'].includes(l.status)).length;
+  document.getElementById('sWins').textContent = leads.filter(l=>['interested','booked'].includes(l.status)).length;
+}
+
+function save() { localStorage.setItem('mtc2_leads', JSON.stringify(leads)); }
+
+function showProgress(msg, pct) {
+  document.getElementById('progressBox').classList.add('show');
+  document.getElementById('progressMsg').textContent = msg;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+function hideProgress() { document.getElementById('progressBox').classList.remove('show'); }
+
+function sortClick(k) {
+  document.getElementById('sortBy').value = k;
+  document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+  const el = document.getElementById('th-' + k);
+  if (el) el.classList.add('sorted');
+  render();
+}
+
+function exportCSV() {
+  if (!leads.length) { toast('No leads to export', 'warn'); return; }
+  const hdr = ['Name','Phone','Niche','Score','Rating','Reviews','Missing','Status','Notes','Address','Maps URL'];
+  const rows = leads.map(l => [
+    `"${l.name.replace(/"/g,'""')}"`, l.phone, l.niche, l.s, l.rating, l.reviews,
+    `"${l.f.join(', ')}"`, l.status,
+    `"${(l.notes||'').replace(/"/g,'""')}"`,
+    `"${l.address}"`, l.maps_url
+  ]);
+  const csv = [hdr,...rows].map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `leads-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exported', 'ok');
+}
+
+function clearAll() {
+  if (!confirm('Clear all leads? This cannot be undone.')) return;
+  leads = []; save();
+  document.getElementById('tbody').innerHTML = '';
+  document.getElementById('leadsTable').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'flex';
+  stats(); toast('Cleared');
+}
+
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
